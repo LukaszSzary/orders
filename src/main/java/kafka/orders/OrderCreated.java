@@ -7,7 +7,7 @@ public record OrderCreated(
         String orderId,
         String customerId,
         String productId,
-        int quality,
+        int quantity,
         BigDecimal totalAmount,
         Instant createdAt) {
 }
