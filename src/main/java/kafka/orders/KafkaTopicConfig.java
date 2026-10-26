@@ -17,4 +17,11 @@ public class KafkaTopicConfig {
                     .build();
         }
 
+        @Bean
+        public NewTopic ordersStatusTopic(){
+            return TopicBuilder.name("order-status")
+                    .partitions(3)
+                    .replicas(1)
+                    .build();
+        }
 }

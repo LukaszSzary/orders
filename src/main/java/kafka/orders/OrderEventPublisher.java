@@ -10,19 +10,22 @@ public class OrderEventPublisher {
     public static final Logger log = LoggerFactory.getLogger(OrderEventPublisher.class);
 
     private final KafkaTemplate <String, OrderCreated> kafkaTemplate;
+    private final OrdersRepository ordersRepository;
 
-    public OrderEventPublisher(KafkaTemplate<String, OrderCreated> kafkaTemplate){
+    public OrderEventPublisher(KafkaTemplate<String, OrderCreated> kafkaTemplate, OrdersRepository ordersRepository){
         this.kafkaTemplate = kafkaTemplate;
+        this.ordersRepository = ordersRepository;
     }
 
     public void publish(OrderCreated event){
         kafkaTemplate.send(KafkaTopicConfig.ORDERS_TOPIC, event.orderId(), event)
                 .whenComplete((result, ex) -> {
                     if (ex != null){
-                        log.error("Nie udało się wysłać zamówienia {}", event.orderId(), ex);
+                        log.error("Failed to send order {}", event.orderId(), ex);
                     } else {
+                        ordersRepository.registerOrder( event.orderId());
                         var meta = result.getRecordMetadata();
-                        log.info("Wysłano {} -> partycja {}, offset {}",
+                        log.info("Sent {} -> partition {}, offset {}",
                                 event.orderId(), meta.partition(), meta.offset());
                     }
                 });
