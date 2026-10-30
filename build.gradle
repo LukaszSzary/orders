@@ -22,6 +22,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 	runtimeOnly 'com.h2database:h2'
+	implementation project(':events')
 	testImplementation 'org.springframework.boot:spring-boot-starter-kafka-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
