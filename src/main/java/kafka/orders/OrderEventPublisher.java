@@ -1,9 +1,11 @@
 package kafka.orders;
 
+import kafka.events.OrderCreated;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+
 
 @Service
 public class OrderEventPublisher {
@@ -18,15 +20,15 @@ public class OrderEventPublisher {
     }
 
     public void publish(OrderCreated event){
-        kafkaTemplate.send(KafkaTopicConfig.ORDERS_TOPIC, event.orderId(), event)
+        kafkaTemplate.send(KafkaTopicConfig.ORDERS_TOPIC, event.getOrderId(), event)
                 .whenComplete((result, ex) -> {
                     if (ex != null){
-                        log.error("Failed to send order {}", event.orderId(), ex);
+                        log.error("Failed to send order {}", event.getOrderId(), ex);
                     } else {
-                        ordersRepository.registerOrder( event.orderId());
+                        ordersRepository.registerOrder( event.getOrderId());
                         var meta = result.getRecordMetadata();
                         log.info("Sent {} -> partition {}, offset {}",
-                                event.orderId(), meta.partition(), meta.offset());
+                                event.getOrderId(), meta.partition(), meta.offset());
                     }
                 });
     }
