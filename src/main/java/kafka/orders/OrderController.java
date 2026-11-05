@@ -11,11 +11,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/orders")
 public class OrderController {
-    public record CreatedOrderRequest(
-            String customerId,
-            String productId,
-            int quantity,
-            BigDecimal totalAmount){}
 
     private final OrderEventPublisher publisher;
 
@@ -25,17 +20,18 @@ public class OrderController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public String createdOrder(@RequestBody CreatedOrderRequest request) {
+    public String createdOrder(@RequestBody OrderCreated request) {
         String orderId = UUID.randomUUID().toString();
 
         var event = OrderCreated.newBuilder()
                 .setEventId(UUID.randomUUID().toString())
                 .setOrderId(orderId)
-                .setCustomerId(request.customerId())
-                .setProductId(request.productId())
-                .setQuantity(request.quantity())
-                .setTotalAmount(request.totalAmount().setScale(2, RoundingMode.HALF_UP))
+                .setCustomerId(request.getCustomerId())
+                .setProductId(request.getProductId())
+                .setQuantity(request.getQuantity())
+                .setTotalAmount(request.getTotalAmount().setScale(2, RoundingMode.HALF_UP))
                 .setCreatedAt(Instant.now())
+                .setCouponCode(request.getCouponCode())
                 .build();
 
         publisher.publish(event);
